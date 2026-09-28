@@ -17,18 +17,17 @@ public class BaseTest {
 
     @BeforeClass
     public void setUp() {
+        boolean headless = Boolean.parseBoolean(System.getProperty("headless", "true"));
+
         playwright = Playwright.create();
 
         browser = playwright.chromium().launch(
                 new BrowserType.LaunchOptions()
-                        .setHeadless(false)
-                        .setSlowMo(1000)
+                        .setHeadless(headless)
         );
 
         page = browser.newPage();
-
         page.setViewportSize(1440, 900);
-
         page.navigate(BASE_URL);
     }
 

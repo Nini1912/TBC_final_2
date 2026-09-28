@@ -36,30 +36,30 @@ public class LoanCalculatorTest extends BaseTest {
                 .navigateToLoans();
     }
 
-    @Test(priority = 2, description = "სესხის კალკულატორის გვერდზე გადასვლა")
+    @Test(priority = 2, dependsOnMethods = "navigateToLoansPage", description = "სესხის კალკულატორის გვერდზე გადასვლა")
     public void navigateToLoanCalculator() {
         loanSteps.clickLoanRequest();
         calculatorSteps = new LoanCalculatorSteps(loanSteps.getLoanCalculatorTab());
     }
 
-    @Test(priority = 3, description = "დარწმუნება რომ ვიმყოფებით 'სესხის თანხით' ტაბზე")
+    @Test(priority = 3, dependsOnMethods = "navigateToLoanCalculator", description = "დარწმუნება რომ ვიმყოფებით 'სესხის თანხით' ტაბზე")
     public void verifyLoanAmountTabIsActive() {
         calculatorSteps.acceptCookiesIfPresent()
                 .verifyLoanAmountTabActive();
     }
 
-    @Test(priority = 4, description = "სესხის თანხის შეყვანა")
+    @Test(priority = 4, dependsOnMethods = "verifyLoanAmountTabIsActive", description = "სესხის თანხის შეყვანა")
     public void enterLoanAmount() {
         calculatorSteps.enterLoanAmount(testData.getLoanAmount());
     }
 
-    @Test(priority = 5, description = "სესხის ვადის არჩევა")
+    @Test(priority = 5, dependsOnMethods = "enterLoanAmount", description = "სესხის ვადის არჩევა")
     public void selectLoanTerm() {
         calculatorSteps.selectLoanTerm(testData.getLoanTermMonths());
     }
 
-    @Test(priority = 6, description = "გამოთვლილი მონაცემების შემოწმება")
-    public void verifyCalculatedData() {
+    @Test(priority = 6, dependsOnMethods = "selectLoanTerm", description = "გამოთვლილი მონაცემების შემოწმება")
+    public void  cverifyCalculatedData() {
         double actualAmount = calculatorSteps.getActualLoanAmount();
         int actualTerm = calculatorSteps.getActualLoanTerm();
         double interestRate = calculatorSteps.getInterestRate();

@@ -41,4 +41,13 @@ public class NavigationSteps {
         navigationPage.offersMenuItem().click();
         return this;
     }
+
+    public NavigationSteps navigateToCards() {
+        navigationPage.cardsMenuItem().click();
+        return this;
+    }
+
+    public NavigationPage getNavigationPage() {
+        return navigationPage;
+    }
 }

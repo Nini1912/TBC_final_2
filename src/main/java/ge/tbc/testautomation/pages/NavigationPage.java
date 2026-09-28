@@ -44,4 +44,11 @@ public class NavigationPage {
         return page.locator(".tbcx-pw-mega-menu-quick-acitons-item__title")
                 .filter(new Locator.FilterOptions().setHasText("შეთავაზებები")).first();
     }
+
+    public Locator cardsMenuItem() {
+        return page.locator("tbcx-pw-mega-menu-sub-group")
+                .filter(new Locator.FilterOptions().setHasText(CARDS_MENU_TEXT))
+                .getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName(CARDS_MENU_TEXT));
+    }
+
 }

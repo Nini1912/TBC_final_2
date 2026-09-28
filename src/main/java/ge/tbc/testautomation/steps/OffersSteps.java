@@ -33,6 +33,7 @@ public class OffersSteps {
 
     public OffersSteps selectShoppingCategory() {
         offersPage.categoryFilter().click();
+        offersPage.shoppingFilter().waitFor();
         offersPage.shoppingFilter().click();
         return this;
     }
@@ -43,7 +44,6 @@ public class OffersSteps {
                         && response.request().method().equals("POST"),
                 () -> selectShoppingCategory()
         );
-
         return this;
     }
 

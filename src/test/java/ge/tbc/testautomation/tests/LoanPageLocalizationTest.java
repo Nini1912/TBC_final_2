@@ -34,14 +34,22 @@ public class LoanPageLocalizationTest extends BaseTest {
         languageSwitcher.switchTo(testData.getLocale());
     }
 
-    @Test(priority = 2, description = "სამომხმარებლო სესხის გვერდზე გადასვლა")
+    @Test(priority = 2, dependsOnMethods = "selectLanguage", description = "...")
     public void navigateToConsumerLoanPage() {
-        navigationSteps.navigateToForMe()
-                .navigateToConsumerLoan();
+        System.out.println("html lang before nav = " + languageSwitcher.getCurrentLanguage());
+        System.out.println("forMeMenuItem count = " + navigationSteps.getNavigationPage().forMeMenuItem().count());
+
+        navigationSteps.navigateToForMe();
+
+        System.out.println("consumerLoanMenuItem count = " + navigationSteps.getNavigationPage().consumerLoanMenuItem().count());
+        System.out.println("consumerLoanMenuItem hrefs = " + navigationSteps.getNavigationPage().consumerLoanMenuItem().allTextContents());
+
+        navigationSteps.navigateToConsumerLoan();
     }
 
-    @Test(priority = 3, description = "გვერდის სათაურის და ძირითადი ინფორმაციის ვალიდაცია")
+    @Test(priority = 3, dependsOnMethods = "navigateToConsumerLoanPage", description = "...")
     public void verifyPageContentLocalized() {
+        System.out.println("URL at verification = " + page.url());
         consumerLoanSteps.verifyPageTitle(testData.getExpectedPageTitle())
                 .verifyMainInfoDisplayed(testData.getExpectedInfoSnippet());
     }

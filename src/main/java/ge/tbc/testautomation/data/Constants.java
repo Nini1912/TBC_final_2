@@ -12,4 +12,6 @@ public class Constants {
     public static final String CORRECTED_CURRENCY_INPUT = "20" ;
     public static final String CURRENCY_ERROR_MESSAGE = "კონვერტაციის შედეგად მიღებული თანხა არასწორია";
     public static final String CURRENCY_RATES_TEXT = "ვალუტის კურსები";
+    public static final String CARDS_MENU_TEXT = "ბარათები";
+    public static final String LOYALTY_CREDIT_CARD_NAME = "ერთგული საკრედიტო ბარათი";
 }

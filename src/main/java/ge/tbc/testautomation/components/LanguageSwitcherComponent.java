@@ -3,6 +3,9 @@ package ge.tbc.testautomation.components;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import com.microsoft.playwright.options.LoadState;
+
+import java.util.regex.Pattern;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
@@ -13,28 +16,20 @@ public class LanguageSwitcherComponent {
         this.page = page;
     }
 
-    private Locator headerScope() {
-        return page.getByRole(AriaRole.BANNER);
-    }
-
     private Locator dropdownTrigger() {
-        return headerScope().locator(".tbcx-language-select__field");
-    }
-
-    private Locator selectedLanguageLabel() {
-        return headerScope().locator(".tbcx-language-select__selected");
+        return page.getByRole(AriaRole.BANNER).locator(".tbcx-language-select__field");
     }
 
     public String getCurrentLanguage() {
-        String label = selectedLanguageLabel().textContent().trim();
-        return label.equalsIgnoreCase("EN") ? "ka" : "en";
+        return page.getAttribute("html", "lang");
     }
 
     public void switchTo(String localeCode) {
         if (!localeCode.equalsIgnoreCase(getCurrentLanguage())) {
-            String labelBeforeClick = selectedLanguageLabel().textContent().trim();
             dropdownTrigger().click();
-            assertThat(selectedLanguageLabel()).not().hasText(labelBeforeClick);
+            assertThat(page.locator("html"))
+                    .hasAttribute("lang", Pattern.compile(localeCode, Pattern.CASE_INSENSITIVE));
+            page.waitForLoadState(LoadState.NETWORKIDLE);
         }
     }
 }
