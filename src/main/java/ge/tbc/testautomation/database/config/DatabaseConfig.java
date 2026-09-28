@@ -1,35 +1,80 @@
 package ge.tbc.testautomation.database.config;
 
-import ge.tbc.testautomation.database.mappers.LoanTestDataMapper;
-import org.apache.ibatis.datasource.pooled.PooledDataSource;
-import org.apache.ibatis.mapping.Environment;
-import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.apache.ibatis.transaction.TransactionFactory;
-import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.util.stream.Collectors;
 
 public class DatabaseConfig {
 
-    private static final String URL =
-            "jdbc:h2:tcp://localhost:9092/./tbc_test_data;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE;MODE=MSSQLServer;DATABASE_TO_UPPER=FALSE;CASE_INSENSITIVE_IDENTIFIERS=TRUE";
+    private static final String JDBC_URL =
+            "jdbc:h2:mem:tbc_automation;DB_CLOSE_DELAY=-1";
 
-    public static LoanTestDataMapper loanTestDataMapper() {
-        PooledDataSource dataSource = new PooledDataSource();
-        dataSource.setDriver("org.h2.Driver");
-        dataSource.setUrl(URL);
-        dataSource.setUsername("sa");
-        dataSource.setPassword("");
+    private static final String USERNAME = "sa";
+    private static final String PASSWORD = "";
 
-        TransactionFactory transactionFactory = new JdbcTransactionFactory();
-        Environment environment = new Environment("development", transactionFactory, dataSource);
-        Configuration configuration = new Configuration(environment);
-        configuration.addMapper(LoanTestDataMapper.class);
+    private static SqlSessionFactory sqlSessionFactory;
 
-        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
-        SqlSession sqlSession = sqlSessionFactory.openSession(true);
+    static {
+        initializeDatabase();
+        initializeMyBatis();
+    }
 
-        return sqlSession.getMapper(LoanTestDataMapper.class);
+    private static void initializeDatabase() {
+
+        try (
+                Connection connection =
+                        DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
+
+                Statement statement = connection.createStatement();
+
+                InputStream inputStream =
+                        Resources.getResourceAsStream("testdata/loan_test_data.sql");
+
+                BufferedReader reader =
+                        new BufferedReader(
+                                new InputStreamReader(
+                                        inputStream,
+                                        StandardCharsets.UTF_8))
+        ) {
+
+            String sql = reader.lines()
+                    .collect(Collectors.joining("\n"));
+
+            for (String command : sql.split(";")) {
+                if (!command.trim().isEmpty()) {
+                    statement.execute(command);
+                }
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize H2 database", e);
+        }
+    }
+
+    private static void initializeMyBatis() {
+
+        try (InputStream inputStream =
+                     Resources.getResourceAsStream("mybatis/mybatis-config.xml")) {
+
+            sqlSessionFactory =
+                    new SqlSessionFactoryBuilder().build(inputStream);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize MyBatis", e);
+        }
+    }
+
+    public static SqlSession getSession() {
+        return sqlSessionFactory.openSession();
     }
 }

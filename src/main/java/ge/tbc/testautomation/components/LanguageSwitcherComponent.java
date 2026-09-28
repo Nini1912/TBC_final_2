@@ -10,25 +10,24 @@ import java.util.regex.Pattern;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 public class LanguageSwitcherComponent {
-    private final Page page;
+    Page page;
+    public Locator dropdownTrigger;
+    public Locator htmlTag;
 
     public LanguageSwitcherComponent(Page page) {
         this.page = page;
-    }
-
-    private Locator dropdownTrigger() {
-        return page.getByRole(AriaRole.BANNER).locator(".tbcx-language-select__field");
+        dropdownTrigger = page.getByRole(AriaRole.BANNER).locator(".tbcx-language-select__field");
+        htmlTag = page.locator("html");
     }
 
     public String getCurrentLanguage() {
-        return page.getAttribute("html", "lang");
+        return htmlTag.getAttribute("lang");
     }
 
     public void switchTo(String localeCode) {
         if (!localeCode.equalsIgnoreCase(getCurrentLanguage())) {
-            dropdownTrigger().click();
-            assertThat(page.locator("html"))
-                    .hasAttribute("lang", Pattern.compile(localeCode, Pattern.CASE_INSENSITIVE));
+            dropdownTrigger.click();
+            assertThat(htmlTag).hasAttribute("lang", Pattern.compile(localeCode, Pattern.CASE_INSENSITIVE));
             page.waitForLoadState(LoadState.NETWORKIDLE);
         }
     }

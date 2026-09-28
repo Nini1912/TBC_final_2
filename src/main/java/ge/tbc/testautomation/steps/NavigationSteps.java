@@ -6,48 +6,53 @@ import ge.tbc.testautomation.pages.NavigationPage;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 public class NavigationSteps {
-    private final NavigationPage navigationPage;
+    Page page;
+    NavigationPage navigationPage;
 
     public NavigationSteps(Page page) {
-        this.navigationPage = new NavigationPage(page);
+        this.page = page;
+        navigationPage = new NavigationPage(page);
     }
 
     public NavigationSteps navigateToForMe() {
-        navigationPage.forMeMenuItem().click();
+        navigationPage.forMeMenuItem.click();
+
         return this;
     }
 
     public NavigationSteps navigateToLoans() {
-        navigationPage.loansMenuItem().click();
+        navigationPage.loansMenuItem.click();
+
         return this;
     }
 
     public NavigationSteps navigateToCurrencyRate() {
-        navigationPage.currencyRateMenuItem().click();
+        navigationPage.currencyRateMenuItem.click();
+
         return this;
     }
 
     public NavigationSteps verifyBreadcrumbContains(String expectedText) {
-        assertThat(navigationPage.breadcrumb()).containsText(expectedText);
+        assertThat(navigationPage.breadcrumb).containsText(expectedText);
+
         return this;
     }
 
     public NavigationSteps navigateToConsumerLoan() {
-        navigationPage.consumerLoanMenuItem().click();
+        navigationPage.consumerLoanMenuItem.click();
+
         return this;
     }
 
     public NavigationSteps navigateToOffers() {
-        navigationPage.offersMenuItem().click();
+        navigationPage.offersMenuItem.click();
+
         return this;
     }
 
     public NavigationSteps navigateToCards() {
-        navigationPage.cardsMenuItem().click();
-        return this;
-    }
+        navigationPage.cardsMenuItem.click();
 
-    public NavigationPage getNavigationPage() {
-        return navigationPage;
+        return this;
     }
 }

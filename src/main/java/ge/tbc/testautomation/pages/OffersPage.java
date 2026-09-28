@@ -4,44 +4,49 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 
+import static ge.tbc.testautomation.data.Constants.*;
+
 public class OffersPage {
 
-    private final Page page;
+    public final Locator allOffersLink;
+    public final Locator categoryFilter;
+    public final Locator shoppingFilterItem;
+    public final Locator shoppingCheckbox;
+    public final Locator offerCards;
+    public final Locator offerTitles;
 
     public OffersPage(Page page) {
-        this.page = page;
-    }
 
-    public Locator allOffersLink() {
-        return page.getByRole(
+        allOffersLink = page.getByRole(
                 AriaRole.LINK,
-                new Page.GetByRoleOptions().setName("ყველა შეთავაზება")
+                new Page.GetByRoleOptions()
+                        .setName(ALL_OFFERS_TEXT)
         );
-    }
 
-    public Locator categoryFilter() {
-        return page.getByText(
-                "კატეგორია",
-                new Page.GetByTextOptions().setExact(true)
+        categoryFilter = page.getByText(
+                CATEGORY_TEXT,
+                new Page.GetByTextOptions()
+                        .setExact(true)
         );
-    }
 
-    public Locator shoppingFilter() {
-        return page.getByText(
-                "შოპინგი",
-                new Page.GetByTextOptions().setExact(true)
+        shoppingFilterItem = page.locator("app-marketing-filter-item")
+                .filter(
+                        new Locator.FilterOptions()
+                                .setHasText(SHOPPING_TEXT)
+                );
+
+        shoppingCheckbox = shoppingFilterItem.locator(
+                "input[type='checkbox']"
         );
-    }
-
-    public Locator offerCards() {
-        return page.locator(
-                ".marketing__cards-list .tbcx-pw-card.tbcx-pw-card--advanced"
+        
+        offerCards = page.locator(
+                ".marketing__cards-list "
+                        + ".tbcx-pw-card.tbcx-pw-card--advanced"
         );
-    }
 
-    public Locator offerTitles() {
-        return page.locator(
-                ".marketing__cards-list .tbcx-pw-card__title"
+        offerTitles = page.locator(
+                ".marketing__cards-list "
+                        + ".tbcx-pw-card__title"
         );
     }
 }

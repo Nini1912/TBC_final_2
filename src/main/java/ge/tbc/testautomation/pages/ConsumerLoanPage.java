@@ -4,18 +4,12 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 
 public class ConsumerLoanPage {
-    private final Page page;
+    public Locator pageTitle;
+    public Locator mainInfoSection;
 
     public ConsumerLoanPage(Page page) {
-        this.page = page;
-    }
-
-    public Locator pageTitle() {
-        return page.locator("h1.app-rich-text-heading-1");
-    }
-
-    public Locator mainInfoSection() {
-        return page.locator("h1.app-rich-text-heading-1")
+        pageTitle = page.locator("h1.app-rich-text-heading-1");
+        mainInfoSection = page.locator("h1.app-rich-text-heading-1")
                 .locator("xpath=following::*[contains(@class,'tbcx-pw-list')][1]");
     }
 }

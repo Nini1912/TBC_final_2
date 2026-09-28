@@ -5,6 +5,7 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
 
 public class CardsPage {
+
     private final Page page;
 
     public CardsPage(Page page) {
@@ -12,6 +13,9 @@ public class CardsPage {
     }
 
     public Locator cardProductLink(String cardName) {
-        return page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(cardName));
+        return page.getByRole(
+                AriaRole.LINK,
+                new Page.GetByRoleOptions().setName(cardName)
+        );
     }
 }

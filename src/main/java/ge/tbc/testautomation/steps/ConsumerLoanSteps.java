@@ -6,19 +6,23 @@ import ge.tbc.testautomation.pages.ConsumerLoanPage;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 public class ConsumerLoanSteps {
-    private final ConsumerLoanPage consumerLoanPage;
+    Page page;
+    ConsumerLoanPage consumerLoanPage;
 
     public ConsumerLoanSteps(Page page) {
-        this.consumerLoanPage = new ConsumerLoanPage(page);
+        this.page = page;
+        consumerLoanPage = new ConsumerLoanPage(page);
     }
 
     public ConsumerLoanSteps verifyPageTitle(String expectedTitle) {
-        assertThat(consumerLoanPage.pageTitle()).containsText(expectedTitle);
+        assertThat(consumerLoanPage.pageTitle).containsText(expectedTitle);
+
         return this;
     }
 
     public ConsumerLoanSteps verifyMainInfoDisplayed(String expectedSnippet) {
-        assertThat(consumerLoanPage.mainInfoSection()).containsText(expectedSnippet);
+        assertThat(consumerLoanPage.mainInfoSection).containsText(expectedSnippet);
+
         return this;
     }
 }

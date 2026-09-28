@@ -5,34 +5,26 @@ import com.microsoft.playwright.Page;
 
 public class CurrencyCalculatorPage {
 
-    private final Page page;
+    public final Locator currencyDropdowns;
+    public final Locator currenciesList;
+    public final Locator sellAmount;
+    public final Locator buyAmount;
+    public final Locator exchangeRateElement;
 
     public CurrencyCalculatorPage(Page page) {
-        this.page = page;
-    }
+        currencyDropdowns =
+                page.locator("button.currency-dropdown__trigger");
 
-    public Locator sellCurrencyDropdown() {
-        return page.locator("app-currency-dropdown[formcontrolname='sellCurrency'] button.currency-dropdown__trigger");
-    }
+        currenciesList =
+                page.locator("li.currency-dropdown__item");
 
-    public Locator buyCurrencyDropdown() {
-        return page.locator("app-currency-dropdown[formcontrolname='buyCurrency'] button.currency-dropdown__trigger");
-    }
+        sellAmount =
+                page.locator("#sell-amount");
 
-    public Locator currencyOption(String currencyCode) {
-        return page.locator(".cdk-overlay-pane")
-                .getByText(currencyCode, new Locator.GetByTextOptions().setExact(true));
-    }
+        buyAmount =
+                page.locator("#buy-amount");
 
-    public Locator sellAmountInput() {
-        return page.locator("#sell-amount");
-    }
-
-    public Locator buyAmountInput() {
-        return page.locator("#buy-amount");
-    }
-
-    public Locator exchangeRateDescription() {
-        return page.locator(".exchange-rates-calculator__description");
+        exchangeRateElement =
+                page.locator("p.exchange-rates-calculator__description");
     }
 }

@@ -3,6 +3,7 @@ package ge.tbc.testautomation.steps;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import ge.tbc.testautomation.pages.CurrencyCalculatorPage;
+import org.testng.Assert;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,160 +15,152 @@ public class CurrencyCalculateSteps {
     private final CurrencyCalculatorPage currencyCalculatorPage;
 
     public CurrencyCalculateSteps(Page page) {
-        currencyCalculatorPage = new CurrencyCalculatorPage(page);
+        currencyCalculatorPage =
+                new CurrencyCalculatorPage(page);
     }
 
     public CurrencyCalculateSteps validateDropDownsNumber() {
-        assertThat(currencyCalculatorPage.sellCurrencyDropdown())
-                .isVisible();
-
-        assertThat(currencyCalculatorPage.buyCurrencyDropdown())
-                .isVisible();
+        assertThat(
+                currencyCalculatorPage.currencyDropdowns
+        ).hasCount(2);
 
         return this;
     }
 
     public CurrencyCalculateSteps selectSellCurrency(String currencyCode) {
-        currencyCalculatorPage.sellCurrencyDropdown().click();
-        currencyCalculatorPage.currencyOption(currencyCode).click();
+        currencyCalculatorPage.currencyDropdowns
+                .nth(0)
+                .click();
+
+        currencyCalculatorPage.currenciesList
+                .filter(new Locator.FilterOptions()
+                        .setHasText(currencyCode))
+                .first()
+                .click();
 
         return this;
     }
 
     public CurrencyCalculateSteps selectBuyCurrency(String currencyCode) {
-        currencyCalculatorPage.buyCurrencyDropdown().click();
-        currencyCalculatorPage.currencyOption(currencyCode).click();
+        currencyCalculatorPage.currencyDropdowns
+                .nth(1)
+                .click();
+
+        currencyCalculatorPage.currenciesList
+                .filter(new Locator.FilterOptions()
+                        .setHasText(currencyCode))
+                .first()
+                .click();
 
         return this;
     }
 
     public CurrencyCalculateSteps verifySellCurrencySelected(String currencyCode) {
-        assertThat(currencyCalculatorPage.sellCurrencyDropdown())
-                .containsText(currencyCode);
+        assertThat(
+                currencyCalculatorPage.currencyDropdowns.nth(0)
+        ).containsText(currencyCode);
 
         return this;
     }
 
     public CurrencyCalculateSteps verifyBuyCurrencySelected(String currencyCode) {
-        assertThat(currencyCalculatorPage.buyCurrencyDropdown())
-                .containsText(currencyCode);
+        assertThat(
+                currencyCalculatorPage.currencyDropdowns.nth(1)
+        ).containsText(currencyCode);
 
         return this;
     }
 
-    public CurrencyCalculateSteps enterValidSellAmount(String amount) {
-        Locator sellAmount = currencyCalculatorPage.sellAmountInput();
+    public CurrencyCalculateSteps enterSellAmount(String amount) {
+        currencyCalculatorPage.sellAmount.fill(amount);
 
-        assertThat(sellAmount).isVisible();
-
-        sellAmount.fill(amount);
-
-        assertThat(sellAmount).hasValue(amount);
+        assertThat(currencyCalculatorPage.sellAmount)
+                .hasValue(amount);
 
         return this;
     }
 
-    public CurrencyCalculateSteps enterInvalidSellAmount(
-            String invalidAmount,
-            String correctedAmount
+    public double getUiExchangeRate(
+            String sellCurrency,
+            String buyCurrency
     ) {
-        Locator sellAmount = currencyCalculatorPage.sellAmountInput();
+        assertThat(currencyCalculatorPage.exchangeRateElement)
+                .containsText(sellCurrency);
 
-        assertThat(sellAmount).isVisible();
+        assertThat(currencyCalculatorPage.exchangeRateElement)
+                .containsText(buyCurrency);
 
-        sellAmount.fill(invalidAmount);
+        String exchangeRateText =
+                currencyCalculatorPage.exchangeRateElement
+                        .innerText()
+                        .trim();
 
-        assertThat(sellAmount).hasValue(correctedAmount);
+        Pattern pattern = Pattern.compile(
+                "1\\s+" + Pattern.quote(sellCurrency)
+                        + "\\s*=\\s*([0-9]+(?:\\.[0-9]+)?)\\s+"
+                        + Pattern.quote(buyCurrency)
+        );
+
+        Matcher matcher = pattern.matcher(exchangeRateText);
+
+        Assert.assertTrue(
+                matcher.find(),
+                "Could not extract exchange rate from UI text: "
+                        + exchangeRateText
+        );
+
+        return Double.parseDouble(matcher.group(1));
+    }
+
+    public CurrencyCalculateSteps verifyExchangeRateMatchesApi(
+            double apiBuyRate,
+            String sellCurrency,
+            String buyCurrency,
+            String errorMessage
+    ) {
+        double uiRate = getUiExchangeRate(
+                sellCurrency,
+                buyCurrency
+        );
+
+        Assert.assertEquals(
+                uiRate,
+                apiBuyRate,
+                0.001,
+                errorMessage
+        );
 
         return this;
     }
 
-    public double getExchangeRate() {
-        Locator exchangeRate = currencyCalculatorPage.exchangeRateDescription();
+    public double calculateExpectedBuyAmount(double apiBuyRate) {
+        double enteredAmount =
+                Double.parseDouble(
+                        currencyCalculatorPage.sellAmount.inputValue()
+                );
 
-        assertThat(exchangeRate).isVisible();
-
-        String text = exchangeRate.textContent();
-
-        if (text == null || text.isBlank()) {
-            throw new AssertionError("Exchange rate text is empty.");
-        }
-
-        Matcher matcher = Pattern.compile(
-                "=\\s*([0-9]+(?:[.,][0-9]+)?)\\s*GEL"
-        ).matcher(text);
-
-        if (!matcher.find()) {
-            throw new AssertionError(
-                    "Could not extract exchange rate from: " + text
-            );
-        }
-
-        return Double.parseDouble(
-                matcher.group(1).replace(",", ".")
-        );
-    }
-
-    public double calculateExpectedBuyAmount(double exchangeRate) {
-        String sellAmount =
-                currencyCalculatorPage.sellAmountInput().inputValue();
-
-        if (sellAmount == null || sellAmount.isBlank()) {
-            throw new AssertionError("Sell amount is empty.");
-        }
-
-        double enteredAmount = Double.parseDouble(sellAmount);
-
-        return enteredAmount * exchangeRate;
+        return enteredAmount * apiBuyRate;
     }
 
     public CurrencyCalculateSteps verifyConvertedAmount(
             double expectedAmount,
             String errorMessage
     ) {
-        Locator buyAmount = currencyCalculatorPage.buyAmountInput();
+        assertThat(currencyCalculatorPage.buyAmount)
+                .not()
+                .hasValue("");
 
-        assertThat(buyAmount).isVisible();
+        double actualAmount = Double.parseDouble(
+                currencyCalculatorPage.buyAmount.inputValue()
+        );
 
-        String actualValue = buyAmount.inputValue();
+        Assert.assertEquals(
+                actualAmount,
+                expectedAmount,
+                0.01,
+                errorMessage
+        );
 
-        if (actualValue == null || actualValue.isBlank()) {
-            throw new AssertionError(
-                    errorMessage + " Converted amount is empty."
-            );
-        }
-
-        double actualAmount;
-
-        try {
-            actualAmount = Double.parseDouble(actualValue);
-        } catch (NumberFormatException e) {
-            throw new AssertionError(
-                    errorMessage
-                            + " Invalid converted amount: "
-                            + actualValue,
-                    e
-            );
-        }
-
-        if (Math.abs(actualAmount - expectedAmount) > 0.01) {
-            throw new AssertionError(
-                    errorMessage
-                            + " Expected: "
-                            + expectedAmount
-                            + ", Actual: "
-                            + actualAmount
-            );
-        }
-
-        return this;
-    }
-
-    public CurrencyCalculateSteps enterSellAmount(String input, String expectedDisplayedValue) {
-        Locator sellAmount = currencyCalculatorPage.sellAmountInput();
-        assertThat(sellAmount).isVisible();
-        sellAmount.fill(input);
-        assertThat(sellAmount).hasValue(expectedDisplayedValue);
         return this;
     }
 }

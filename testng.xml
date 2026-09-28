@@ -1,21 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="TBC Digital - Final Project 2" parallel="instances" thread-count="4" verbose="2">
+
+<suite name="TBC Digital - Final Project 2"
+       parallel="false"
+       verbose="2">
 
     <test name="UI Automation">
         <classes>
-            <class name="ge.tbc.testautomation.tests.LoanCalculatorTest"/>
-            <class name="ge.tbc.testautomation.tests.LoanPageLocalizationTest"/>
-            <class name="ge.tbc.testautomation.tests.CurrencyCalculatorTest"/>
-            <class name="ge.tbc.testautomation.tests.OffersFilterNetworkTest"/>
             <class name="ge.tbc.testautomation.tests.CardProductTest"/>
+        </classes>
+    </test>
+
+    <test name="Localization">
+        <classes>
+            <class name="ge.tbc.testautomation.tests.LoanPageLocalizationTest"/>
+        </classes>
+    </test>
+
+    <test name="SQL DataProvider">
+        <classes>
+            <class name="ge.tbc.testautomation.tests.LoanCalculatorTest"/>
         </classes>
     </test>
 
     <test name="API Automation">
         <classes>
-            <class name="ge.tbc.testautomation.tests.ExchangeRateApiTest"/>
-            <class name="ge.tbc.testautomation.tests.ExchangeRateApiNegativeTest"/>
+            <class name="ge.tbc.testautomation.tests.IntegrationServicesValidApiTest"/>
+            <class name="ge.tbc.testautomation.tests.IntegrationServicesInvalidApiTest"/>
+        </classes>
+    </test>
+
+    <test name="API to UI Automation">
+        <classes>
+            <class name="ge.tbc.testautomation.tests.ExchangeRateApiToUiTest"/>
+        </classes>
+    </test>
+
+    <test name="Playwright Network Validation">
+        <classes>
+            <class name="ge.tbc.testautomation.tests.OffersFilterNetworkTest"/>
         </classes>
     </test>
 

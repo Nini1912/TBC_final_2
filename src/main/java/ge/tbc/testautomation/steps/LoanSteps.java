@@ -5,10 +5,10 @@ import com.microsoft.playwright.Page;
 import ge.tbc.testautomation.pages.LoansPage;
 
 public class LoanSteps {
-    private final Page page;
-    private final BrowserContext context;
-    private final LoansPage loansPage;
-    private Page loanCalculatorTab;
+    Page page;
+    BrowserContext context;
+    LoansPage loansPage;
+    Page loanCalculatorTab;
 
     public LoanSteps(Page page) {
         this.page = page;
@@ -17,8 +17,9 @@ public class LoanSteps {
     }
 
     public LoanSteps clickLoanRequest() {
-        loanCalculatorTab = context.waitForPage(() -> loansPage.loanRequestButton().click());
+        loanCalculatorTab = context.waitForPage(() -> loansPage.loanRequestButton.click());
         loanCalculatorTab.waitForLoadState();
+
         return this;
     }
 

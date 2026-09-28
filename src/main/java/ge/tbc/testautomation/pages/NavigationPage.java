@@ -9,46 +9,29 @@ import java.util.regex.Pattern;
 import static ge.tbc.testautomation.data.Constants.*;
 
 public class NavigationPage {
-    private final Page page;
+    public Locator forMeMenuItem;
+    public Locator loansMenuItem;
+    public Locator currencyRateMenuItem;
+    public Locator breadcrumb;
+    public Locator consumerLoanMenuItem;
+    public Locator offersMenuItem;
+    public Locator cardsMenuItem;
 
     public NavigationPage(Page page) {
-        this.page = page;
-    }
-
-    public Locator forMeMenuItem() {
-        return page.getByRole(AriaRole.BANNER)
+        forMeMenuItem = page.getByRole(AriaRole.BANNER)
                 .getByRole(AriaRole.LINK, new Locator.GetByRoleOptions()
                         .setName(Pattern.compile("ჩემთვის|Personal", Pattern.CASE_INSENSITIVE)));
-    }
-
-    public Locator loansMenuItem() {
-        return page.locator("tbcx-pw-mega-menu-sub-group")
+        loansMenuItem = page.locator("tbcx-pw-mega-menu-sub-group")
                 .filter(new Locator.FilterOptions().setHasText(LOANS_MENU_TEXT))
                 .getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName(LOANS_MENU_TEXT));
-    }
-
-    public Locator currencyRateMenuItem() {
-        return page.locator(".tbcx-pw-mega-menu-quick-acitons-item__title")
+        currencyRateMenuItem = page.locator(".tbcx-pw-mega-menu-quick-acitons-item__title")
                 .filter(new Locator.FilterOptions().setHasText(CURRENCY_RATES_TEXT)).first();
-    }
-
-    public Locator breadcrumb() {
-        return page.locator(".tbcx-pw-breadcrumbs__items");
-    }
-
-    public Locator consumerLoanMenuItem() {
-        return page.locator(".tbcx-pw-mega-menu--open .show-tablet-up a[href*='/loans/consumer-loan']");
-    }
-
-    public Locator offersMenuItem() {
-        return page.locator(".tbcx-pw-mega-menu-quick-acitons-item__title")
-                .filter(new Locator.FilterOptions().setHasText("შეთავაზებები")).first();
-    }
-
-    public Locator cardsMenuItem() {
-        return page.locator("tbcx-pw-mega-menu-sub-group")
+        breadcrumb = page.locator(".tbcx-pw-breadcrumbs__items");
+        consumerLoanMenuItem = page.locator(".tbcx-pw-mega-menu--open .show-tablet-up a[href*='/loans/consumer-loan']");
+        offersMenuItem = page.locator(".tbcx-pw-mega-menu-quick-acitons-item__title")
+                .filter(new Locator.FilterOptions().setHasText(OFFERS)).first();
+        cardsMenuItem = page.locator("tbcx-pw-mega-menu-sub-group")
                 .filter(new Locator.FilterOptions().setHasText(CARDS_MENU_TEXT))
                 .getByRole(AriaRole.LINK, new Locator.GetByRoleOptions().setName(CARDS_MENU_TEXT));
     }
-
 }

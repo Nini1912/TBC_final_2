@@ -8,9 +8,9 @@ import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertTha
 import static org.testng.Assert.assertEquals;
 
 public class LoanCalculatorSteps {
-    private final Page page;
-    private final LoanCalculatorPage loanCalculatorPage;
-    private final CookieBannerComponent cookieBanner;
+    Page page;
+    LoanCalculatorPage loanCalculatorPage;
+    CookieBannerComponent cookieBanner;
 
     public LoanCalculatorSteps(Page loanCalculatorTab) {
         this.page = loanCalculatorTab;
@@ -18,39 +18,32 @@ public class LoanCalculatorSteps {
         this.cookieBanner = new CookieBannerComponent(loanCalculatorTab);
     }
 
+    public LoanCalculatorSteps acceptCookiesIfPresent() {
+        cookieBanner.acceptIfPresent();
+
+        return this;
+    }
+
     public LoanCalculatorSteps verifyLoanAmountTabActive() {
-        assertThat(loanCalculatorPage.standardCalculatorContainer()).isVisible();
+        assertThat(loanCalculatorPage.standardCalculatorContainer).isVisible();
+
         return this;
     }
 
     public LoanCalculatorSteps enterLoanAmount(double amount) {
-        loanCalculatorPage.loanAmountInput().fill(String.valueOf((long) amount));
-        loanCalculatorPage.loanAmountInput().blur();
+        loanCalculatorPage.loanAmountInput.fill(String.valueOf((long) amount));
+        loanCalculatorPage.loanAmountInput.blur();
         page.waitForTimeout(500);
+
         return this;
     }
 
     public LoanCalculatorSteps selectLoanTerm(int months) {
-        loanCalculatorPage.loanTermInput().fill(String.valueOf(months));
-        loanCalculatorPage.loanTermInput().blur();
+        loanCalculatorPage.loanTermInput.fill(String.valueOf(months));
+        loanCalculatorPage.loanTermInput.blur();
         page.waitForTimeout(500);
+
         return this;
-    }
-
-    public double getActualLoanAmount() {
-        return parseNumeric(loanCalculatorPage.resultAmountValue().textContent());
-    }
-
-    public int getActualLoanTerm() {
-        return (int) parseNumeric(loanCalculatorPage.resultPeriodValue().textContent());
-    }
-
-    public double getInterestRate() {
-        return parseNumeric(loanCalculatorPage.interestRateValue().textContent());
-    }
-
-    public double getDisplayedMonthlyPayment() {
-        return parseNumeric(loanCalculatorPage.monthlyPaymentValue().textContent());
     }
 
     public double calculateExpectedMonthlyPayment(double amount, int termMonths, double annualRatePercent) {
@@ -72,8 +65,19 @@ public class LoanCalculatorSteps {
         return Double.parseDouble(cleaned);
     }
 
-    public LoanCalculatorSteps acceptCookiesIfPresent() {
-        cookieBanner.acceptIfPresent();
-        return this;
+    public double getActualLoanAmount() {
+        return parseNumeric(loanCalculatorPage.resultAmountValue.textContent());
+    }
+
+    public int getActualLoanTerm() {
+        return (int) parseNumeric(loanCalculatorPage.resultPeriodValue.textContent());
+    }
+
+    public double getInterestRate() {
+        return parseNumeric(loanCalculatorPage.interestRateValue.textContent());
+    }
+
+    public double getDisplayedMonthlyPayment() {
+        return parseNumeric(loanCalculatorPage.monthlyPaymentValue.textContent());
     }
 }

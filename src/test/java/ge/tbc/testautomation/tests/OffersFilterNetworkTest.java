@@ -7,8 +7,8 @@ import org.testng.annotations.Test;
 
 public class OffersFilterNetworkTest extends BaseTest {
 
-    private OffersSteps offersSteps;
-    private NavigationSteps navigationSteps;
+    OffersSteps offersSteps;
+    NavigationSteps navigationSteps;
 
     @BeforeClass
     public void innerSetUp() {
@@ -16,54 +16,38 @@ public class OffersFilterNetworkTest extends BaseTest {
         navigationSteps = new NavigationSteps(page);
     }
 
-    @Test(
-            priority = 1,
-            description = "TBC-XXXX | Step 1 - შეთავაზებების გვერდზე გადასვლა"
-    )
+    @Test(priority = 1, description = "KAN-T48 შეთავაზებების გვერდზე გადასვლა")
     public void navigateToOffersPage() {
-        navigationSteps.navigateToForMe()
+        navigationSteps
+                .navigateToForMe()
                 .navigateToOffers();
 
         offersSteps.navigateToAllOffers();
     }
 
-    @Test(
-            priority = 2,
-            description = "TBC-XXXX | Step 2 - ფილტრის არჩევა"
-    )
+    @Test(priority = 2, description = "KAN-T48 ფილტრის არჩევა")
     public void selectShoppingFilter() {
         offersSteps.selectShoppingFilterAndCaptureResponse();
     }
 
-    @Test(
-            priority = 3,
-            description = "TBC-XXXX | Step 3 - Network Request-ის endpoint და HTTP method-ის შემოწმება"
-    )
+    @Test(priority = 3, description = "KAN-T48 Network Request-ის endpoint და HTTP method-ის შემოწმება")
     public void validateRequestEndpointAndMethod() {
-        offersSteps.verifyRequestEndpoint()
+        offersSteps
+                .verifyRequestEndpoint()
                 .verifyRequestMethod();
     }
 
-    @Test(
-            priority = 4,
-            description = "TBC-XXXX | Step 4 - მიღებული Response-ის HTTP status code-ს ვალიდაცია"
-    )
+    @Test(priority = 4, description = "KAN-T48 მიღებული Response-ის HTTP status code-ს ვალიდაცია")
     public void validateResponseStatusCode() {
         offersSteps.verifyResponseStatusCode();
     }
 
-    @Test(
-            priority = 5,
-            description = "TBC-XXXX | Step 5 - Request-ის შესაბამისი filter parameter-ის ვალიდაცია"
-    )
+    @Test(priority = 5, description = "KAN-T48 Request-ის შესაბამისი filter parameter-ის ვალიდაცია")
     public void validateShoppingFilterParameter() {
         offersSteps.verifyShoppingFilterParameter();
     }
 
-    @Test(
-            priority = 6,
-            description = "TBC-XXXX | Step 6 - შეთავაზებების სიის UI-ზე ვალიდაცია"
-    )
+    @Test(priority = 6, description = "KAN-T48 შეთავაზებების სიის UI-ზე ვალიდაცია")
     public void validateDisplayedOffers() {
         offersSteps.verifyDisplayedOffersAgainstResponse();
     }

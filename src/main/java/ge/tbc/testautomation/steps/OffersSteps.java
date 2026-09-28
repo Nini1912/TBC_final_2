@@ -5,14 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Response;
 import ge.tbc.testautomation.pages.OffersPage;
+import org.testng.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class OffersSteps {
+import static ge.tbc.testautomation.data.Constants.*;
 
-    private static final String OFFERS_API_URL =
-            "https://apigw.tbcbank.ge/api/v1/marketing/entries/offer";
+public class OffersSteps {
 
     private final Page page;
     private final OffersPage offersPage;
@@ -27,82 +27,125 @@ public class OffersSteps {
     }
 
     public OffersSteps navigateToAllOffers() {
-        offersPage.allOffersLink().click();
-        return this;
-    }
+        offersPage.allOffersLink.click();
 
-    public OffersSteps selectShoppingCategory() {
-        offersPage.categoryFilter().click();
-        offersPage.shoppingFilter().waitFor();
-        offersPage.shoppingFilter().click();
         return this;
     }
 
     public OffersSteps selectShoppingFilterAndCaptureResponse() {
+
+        openCategoryFilter();
+
         shoppingFilterResponse = page.waitForResponse(
-                response -> response.url().equals(OFFERS_API_URL)
-                        && response.request().method().equals("POST"),
-                () -> selectShoppingCategory()
+                response ->
+                        response.url().equals(OFFERS_API_URL)
+                                && response.request()
+                                .method()
+                                .equals(POST_METHOD),
+                () -> offersPage.shoppingFilterItem
+                        .locator("button.filter-item")
+                        .click()
         );
+
+        Assert.assertTrue(
+                offersPage.shoppingCheckbox.isChecked(),
+                "Shopping filter should be checked after selection"
+        );
+
+        Assert.assertNotNull(
+                shoppingFilterResponse,
+                "Shopping filter response was not captured"
+        );
+
         return this;
     }
 
     public OffersSteps verifyRequestEndpoint() {
-        if (shoppingFilterResponse == null) {
-            throw new AssertionError("Shopping filter response was not captured.");
-        }
+        validateCapturedResponse();
 
-        if (!shoppingFilterResponse.url().equals(OFFERS_API_URL)) {
-            throw new AssertionError(
-                    "Unexpected endpoint: " + shoppingFilterResponse.url()
-            );
-        }
+        Assert.assertEquals(
+                shoppingFilterResponse.url(),
+                OFFERS_API_URL,
+                "Unexpected offers API endpoint"
+        );
 
         return this;
     }
 
     public OffersSteps verifyRequestMethod() {
-        if (shoppingFilterResponse == null) {
-            throw new AssertionError("Shopping filter response was not captured.");
-        }
+        validateCapturedResponse();
 
-        String method = shoppingFilterResponse.request().method();
-
-        if (!method.equals("POST")) {
-            throw new AssertionError(
-                    "Unexpected HTTP method: " + method
-            );
-        }
+        Assert.assertEquals(
+                shoppingFilterResponse.request().method(),
+                POST_METHOD,
+                "Unexpected HTTP method"
+        );
 
         return this;
     }
 
     public OffersSteps verifyResponseStatusCode() {
-        if (shoppingFilterResponse == null) {
-            throw new AssertionError("Shopping filter response was not captured.");
-        }
+        validateCapturedResponse();
 
-        if (shoppingFilterResponse.status() != 200) {
-            throw new AssertionError(
-                    "Unexpected response status code: "
-                            + shoppingFilterResponse.status()
-            );
-        }
+        Assert.assertEquals(
+                shoppingFilterResponse.status(),
+                STATUS_OK,
+                "Unexpected response status code"
+        );
 
         return this;
     }
 
     public OffersSteps verifyShoppingFilterParameter() {
-        if (shoppingFilterResponse == null) {
-            throw new AssertionError("Shopping filter response was not captured.");
-        }
+        validateCapturedResponse();
 
-        String requestBody = shoppingFilterResponse.request().postData();
+        String requestBody =
+                shoppingFilterResponse.request().postData();
 
-        if (requestBody == null || !requestBody.contains("Category:Shopping")) {
+        Assert.assertNotNull(
+                requestBody,
+                "Shopping filter request body should not be null"
+        );
+
+        try {
+            JsonNode requestJson =
+                    objectMapper.readTree(requestBody);
+
+            JsonNode filterNode =
+                    requestJson.get("filter");
+
+            Assert.assertNotNull(
+                    filterNode,
+                    "Request body does not contain 'filter'"
+            );
+
+            Assert.assertTrue(
+                    filterNode.isArray(),
+                    "Request 'filter' should be an array"
+            );
+
+            boolean containsShoppingFilter = false;
+
+            for (JsonNode filter : filterNode) {
+                if (SHOPPING_FILTER_PARAMETER.equals(filter.asText())) {
+                    containsShoppingFilter = true;
+                    break;
+                }
+            }
+
+            Assert.assertTrue(
+                    containsShoppingFilter,
+                    "Request filter does not contain expected value: "
+                            + SHOPPING_FILTER_PARAMETER
+                            + ". Actual filter: "
+                            + filterNode
+            );
+
+        } catch (Exception e) {
             throw new AssertionError(
-                    "Request does not contain Category:Shopping. Request body: "
-                            + requestBody
+                    "Failed to parse shopping filter request body: "
+                            + requestBody,
+                    e
             );
         }
 
@@ -110,78 +153,113 @@ public class OffersSteps {
     }
 
     public OffersSteps verifyDisplayedOffersAgainstResponse() {
-        if (shoppingFilterResponse == null) {
-            throw new AssertionError("Shopping filter response was not captured.");
-        }
+        validateCapturedResponse();
 
-        List<String> responseTitles = getResponseOfferTitles();
-        List<String> displayedTitles = getDisplayedOfferTitles();
+        List<String> responseTitles =
+                getResponseOfferTitles();
 
-        if (responseTitles.isEmpty()) {
-            throw new AssertionError(
-                    "The API response contains no offers."
-            );
-        }
+        List<String> displayedTitles =
+                getDisplayedOfferTitles();
 
-        if (displayedTitles.isEmpty()) {
-            throw new AssertionError(
-                    "No offers are displayed in the UI."
-            );
-        }
+        Assert.assertFalse(
+                responseTitles.isEmpty(),
+                "The API response contains no offers"
+        );
 
-        if (!responseTitles.equals(displayedTitles)) {
-            throw new AssertionError(
-                    "Displayed offers do not match the offers returned by the API."
-                            + "\nAPI offers: " + responseTitles
-                            + "\nUI offers: " + displayedTitles
-            );
-        }
+        Assert.assertFalse(
+                displayedTitles.isEmpty(),
+                "No offers are displayed in the UI"
+        );
+
+        Assert.assertEquals(
+                displayedTitles,
+                responseTitles,
+                "Displayed offers do not match offers returned by the API"
+        );
 
         return this;
     }
 
     public List<String> getDisplayedOfferTitles() {
         return normalizeTitles(
-                offersPage.offerTitles().allTextContents()
+                offersPage.offerTitles.allTextContents()
         );
     }
 
     private List<String> getResponseOfferTitles() {
+        validateCapturedResponse();
+
         try {
             JsonNode responseJson =
-                    objectMapper.readTree(shoppingFilterResponse.text());
+                    objectMapper.readTree(
+                            shoppingFilterResponse.text()
+                    );
 
-            JsonNode list = responseJson.get("list");
+            JsonNode list =
+                    responseJson.get("list");
 
-            if (list == null || !list.isArray()) {
-                throw new AssertionError(
-                        "Response does not contain a valid 'list' array."
-                );
-            }
+            Assert.assertNotNull(
+                    list,
+                    "Response does not contain 'list'"
+            );
 
-            List<String> titles = new ArrayList<>();
+            Assert.assertTrue(
+                    list.isArray(),
+                    "Response 'list' should be an array"
+            );
+
+            List<String> titles =
+                    new ArrayList<>();
 
             for (JsonNode offer : list) {
-                JsonNode title = offer.get("title");
+                JsonNode title =
+                        offer.get("title");
 
-                if (title != null && !title.asText().isBlank()) {
-                    titles.add(title.asText().trim());
+                if (title != null
+                        && !title.asText().isBlank()) {
+
+                    titles.add(
+                            title.asText().trim()
+                    );
                 }
             }
 
             return titles;
+
         } catch (Exception e) {
             throw new AssertionError(
-                    "Failed to parse offers response: " + e.getMessage(),
+                    "Failed to parse offers response: "
+                            + e.getMessage(),
                     e
             );
         }
     }
 
-    private List<String> normalizeTitles(List<String> titles) {
+    private List<String> normalizeTitles(
+            List<String> titles
+    ) {
         return titles.stream()
                 .map(String::trim)
                 .filter(title -> !title.isBlank())
                 .toList();
+    }
+
+    private void validateCapturedResponse() {
+        Assert.assertNotNull(
+                shoppingFilterResponse,
+                "Shopping filter response was not captured"
+        );
+    }
+
+    public OffersSteps openCategoryFilter() {
+        offersPage.categoryFilter.click();
+        offersPage.shoppingCheckbox.waitFor();
+
+        Assert.assertFalse(
+                offersPage.shoppingCheckbox.isChecked(),
+                "Shopping filter should initially be unchecked"
+        );
+
+        return this;
     }
 }
