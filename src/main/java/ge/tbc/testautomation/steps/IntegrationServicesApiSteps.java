@@ -5,9 +5,10 @@ import ge.tbc.testautomation.api.models.ErrorResponse;
 import ge.tbc.testautomation.api.models.PageResponse;
 import ge.tbc.testautomation.api.models.SectionComponent;
 import io.restassured.response.Response;
-import org.testng.Assert;
 
 import static ge.tbc.testautomation.data.Constants.FEATURE_GRID_SECTION_TYPE;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class IntegrationServicesApiSteps {
 
@@ -17,87 +18,110 @@ public class IntegrationServicesApiSteps {
         return pageApi.getPage(pageId, locale);
     }
 
-    public void validateStatusCode(Response response, int expectedStatusCode) {
-        Assert.assertEquals(
+    public void validateStatusCode(
+            Response response,
+            int expectedStatusCode
+    ) {
+        assertThat(
+                "Unexpected HTTP status code",
                 response.statusCode(),
-                expectedStatusCode,
-                "Unexpected HTTP status code"
+                is(expectedStatusCode)
         );
     }
 
     public PageResponse deserializePageResponse(Response response) {
-        PageResponse pageResponse = response.as(PageResponse.class);
+        PageResponse pageResponse =
+                response.as(PageResponse.class);
 
-        Assert.assertNotNull(
+        assertThat(
+                "Page response should be successfully deserialized",
                 pageResponse,
-                "Page response should be successfully deserialized"
+                notNullValue()
         );
 
         return pageResponse;
     }
 
     public ErrorResponse deserializeErrorResponse(Response response) {
-        ErrorResponse errorResponse = response.as(ErrorResponse.class);
+        ErrorResponse errorResponse =
+                response.as(ErrorResponse.class);
 
-        Assert.assertNotNull(
+        assertThat(
+                "Error response should be successfully deserialized",
                 errorResponse,
-                "Error response should be successfully deserialized"
+                notNullValue()
         );
 
         return errorResponse;
     }
 
-    public void validateKey(PageResponse pageResponse, String expectedKey) {
-        Assert.assertEquals(
+    public void validateKey(
+            PageResponse pageResponse,
+            String expectedKey
+    ) {
+        assertThat(
+                "Unexpected key value",
                 pageResponse.getKey(),
-                expectedKey,
-                "Unexpected key value"
+                is(expectedKey)
         );
     }
 
-    public void validateSlug(PageResponse pageResponse, String expectedSlug) {
-        Assert.assertEquals(
+    public void validateSlug(
+            PageResponse pageResponse,
+            String expectedSlug
+    ) {
+        assertThat(
+                "Unexpected slug value",
                 pageResponse.getSlug(),
-                expectedSlug,
-                "Unexpected slug value"
+                is(expectedSlug)
         );
     }
 
     public void validateSeo(PageResponse pageResponse) {
-        Assert.assertNotNull(
+        assertThat(
+                "SEO object should not be null",
                 pageResponse.getSeo(),
-                "SEO object should not be null"
+                notNullValue()
         );
 
-        Assert.assertNotNull(
+        assertThat(
+                "SEO title should not be null",
                 pageResponse.getSeo().getTitle(),
-                "SEO title should not be null"
+                notNullValue()
         );
 
-        Assert.assertFalse(
-                pageResponse.getSeo().getTitle().isBlank(),
-                "SEO title should not be empty"
+        assertThat(
+                "SEO title should not be empty",
+                pageResponse.getSeo().getTitle(),
+                not(is(emptyOrNullString()))
         );
     }
 
     public void validateSectionComponents(PageResponse pageResponse) {
-        Assert.assertNotNull(
+        assertThat(
+                "sectionComponents should not be null",
                 pageResponse.getSectionComponents(),
-                "sectionComponents should not be null"
+                notNullValue()
         );
 
-        Assert.assertFalse(
-                pageResponse.getSectionComponents().isEmpty(),
-                "sectionComponents should not be empty"
+        assertThat(
+                "sectionComponents should not be empty",
+                pageResponse.getSectionComponents(),
+                is(not(empty()))
         );
     }
 
-    public SectionComponent validateFeatureGridItems(PageResponse pageResponse) {
+    public SectionComponent validateFeatureGridItems(
+            PageResponse pageResponse
+    ) {
         SectionComponent featureGridSection =
                 pageResponse.getSectionComponents()
                         .stream()
                         .filter(section ->
-                                FEATURE_GRID_SECTION_TYPE.equals(section.getType()))
+                                FEATURE_GRID_SECTION_TYPE.equals(
+                                        section.getType()
+                                )
+                        )
                         .findFirst()
                         .orElseThrow(() ->
                                 new AssertionError(
@@ -105,21 +129,26 @@ public class IntegrationServicesApiSteps {
                                 )
                         );
 
-        Assert.assertNotNull(
+        assertThat(
+                "featureGridSection inputs should not be null",
                 featureGridSection.getInputs(),
-                "featureGridSection inputs should not be null"
+                notNullValue()
         );
 
-        Assert.assertNotNull(
-                featureGridSection.getInputs().getFeatureGridItems(),
-                "featureGridItems should not be null"
+        assertThat(
+                "featureGridItems should not be null",
+                featureGridSection
+                        .getInputs()
+                        .getFeatureGridItems(),
+                notNullValue()
         );
 
-        Assert.assertFalse(
-                featureGridSection.getInputs()
-                        .getFeatureGridItems()
-                        .isEmpty(),
-                "featureGridItems should not be empty"
+        assertThat(
+                "featureGridItems should not be empty",
+                featureGridSection
+                        .getInputs()
+                        .getFeatureGridItems(),
+                is(not(empty()))
         );
 
         return featureGridSection;
@@ -129,43 +158,49 @@ public class IntegrationServicesApiSteps {
             SectionComponent featureGridSection,
             String expectedSubTitle
     ) {
-        String actualSubTitle = featureGridSection
-                .getInputs()
-                .getFeatureGridItems()
-                .get(0)
-                .getSubTitle();
+        String actualSubTitle =
+                featureGridSection
+                        .getInputs()
+                        .getFeatureGridItems()
+                        .get(0)
+                        .getSubTitle();
 
-        Assert.assertNotNull(
+        assertThat(
+                "subTitle should not be null",
                 actualSubTitle,
-                "subTitle should not be null"
+                notNullValue()
         );
 
-        Assert.assertFalse(
-                actualSubTitle.isBlank(),
-                "subTitle should not be empty"
+        assertThat(
+                "subTitle should not be empty",
+                actualSubTitle,
+                not(is(emptyOrNullString()))
         );
 
-        Assert.assertEquals(
+        assertThat(
+                "Unexpected subTitle",
                 actualSubTitle,
-                expectedSubTitle,
-                "Unexpected subTitle"
+                is(expectedSubTitle)
         );
     }
 
     public void validateJsonResponseBody(Response response) {
-        Assert.assertNotNull(
+        assertThat(
+                "Response body should not be null",
                 response.getBody(),
-                "Response body should not be null"
+                notNullValue()
         );
 
-        Assert.assertFalse(
-                response.getBody().asString().isBlank(),
-                "Response body should not be empty"
+        assertThat(
+                "Response body should not be empty",
+                response.getBody().asString(),
+                not(is(emptyOrNullString()))
         );
 
-        Assert.assertTrue(
-                response.contentType().contains("json"),
-                "Response should be JSON"
+        assertThat(
+                "Response should be JSON",
+                response.contentType().toLowerCase(),
+                containsString("json")
         );
     }
 
@@ -173,16 +208,16 @@ public class IntegrationServicesApiSteps {
             Response response,
             String expectedValue
     ) {
-        Assert.assertEquals(
+        assertThat(
+                "Unexpected error type",
                 response.jsonPath().getString("type"),
-                expectedValue,
-                "Unexpected error type"
+                is(expectedValue)
         );
 
-        Assert.assertEquals(
+        assertThat(
+                "Unexpected error code",
                 response.jsonPath().getString("code"),
-                expectedValue,
-                "Unexpected error code"
+                is(expectedValue)
         );
     }
 
@@ -191,16 +226,16 @@ public class IntegrationServicesApiSteps {
             String expectedTitle,
             int expectedStatus
     ) {
-        Assert.assertEquals(
+        assertThat(
+                "Unexpected error title",
                 response.jsonPath().getString("title"),
-                expectedTitle,
-                "Unexpected error title"
+                is(expectedTitle)
         );
 
-        Assert.assertEquals(
+        assertThat(
+                "Unexpected error status",
                 response.jsonPath().getInt("status"),
-                expectedStatus,
-                "Unexpected error status"
+                is(expectedStatus)
         );
     }
 
@@ -208,10 +243,10 @@ public class IntegrationServicesApiSteps {
             Response response,
             String expectedDetail
     ) {
-        Assert.assertEquals(
+        assertThat(
+                "Unexpected error detail",
                 response.jsonPath().getString("detail"),
-                expectedDetail,
-                "Unexpected error detail"
+                is(expectedDetail)
         );
     }
 
@@ -220,16 +255,16 @@ public class IntegrationServicesApiSteps {
             int expectedStatus,
             String expectedCode
     ) {
-        Assert.assertEquals(
+        assertThat(
+                "Unexpected deserialized error status",
                 errorResponse.getStatus(),
-                expectedStatus,
-                "Unexpected deserialized error status"
+                is(expectedStatus)
         );
 
-        Assert.assertEquals(
+        assertThat(
+                "Unexpected deserialized error code",
                 errorResponse.getCode(),
-                expectedCode,
-                "Unexpected deserialized error code"
+                is(expectedCode)
         );
     }
 }

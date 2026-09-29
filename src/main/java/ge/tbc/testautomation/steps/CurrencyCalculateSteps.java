@@ -2,13 +2,15 @@ package ge.tbc.testautomation.steps;
 
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.assertions.PlaywrightAssertions;
 import ge.tbc.testautomation.pages.CurrencyCalculatorPage;
-import org.testng.Assert;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.is;
 
 public class CurrencyCalculateSteps {
 
@@ -20,66 +22,91 @@ public class CurrencyCalculateSteps {
     }
 
     public CurrencyCalculateSteps validateDropDownsNumber() {
-        assertThat(
-                currencyCalculatorPage.currencyDropdowns
-        ).hasCount(2);
+        PlaywrightAssertions
+                .assertThat(currencyCalculatorPage.currencyDropdowns)
+                .hasCount(2);
 
         return this;
     }
 
-    public CurrencyCalculateSteps selectSellCurrency(String currencyCode) {
+    public CurrencyCalculateSteps selectSellCurrency(
+            String currencyCode
+    ) {
         currencyCalculatorPage.currencyDropdowns
                 .nth(0)
                 .click();
 
         currencyCalculatorPage.currenciesList
-                .filter(new Locator.FilterOptions()
-                        .setHasText(currencyCode))
+                .filter(
+                        new Locator.FilterOptions()
+                                .setHasText(currencyCode)
+                )
                 .first()
                 .click();
 
         return this;
     }
 
-    public CurrencyCalculateSteps selectBuyCurrency(String currencyCode) {
+    public CurrencyCalculateSteps selectBuyCurrency(
+            String currencyCode
+    ) {
         currencyCalculatorPage.currencyDropdowns
                 .nth(1)
                 .click();
 
         currencyCalculatorPage.currenciesList
-                .filter(new Locator.FilterOptions()
-                        .setHasText(currencyCode))
+                .filter(
+                        new Locator.FilterOptions()
+                                .setHasText(currencyCode)
+                )
                 .first()
                 .click();
 
         return this;
     }
 
-    public CurrencyCalculateSteps verifySellCurrencySelected(String currencyCode) {
-        assertThat(
-                currencyCalculatorPage.currencyDropdowns.nth(0)
-        ).containsText(currencyCode);
+    public CurrencyCalculateSteps verifySellCurrencySelected(
+            String currencyCode
+    ) {
+        PlaywrightAssertions
+                .assertThat(
+                        currencyCalculatorPage
+                                .currencyDropdowns
+                                .nth(0)
+                )
+                .containsText(currencyCode);
 
         return this;
     }
 
-    public CurrencyCalculateSteps verifyBuyCurrencySelected(String currencyCode) {
-        assertThat(
-                currencyCalculatorPage.currencyDropdowns.nth(1)
-        ).containsText(currencyCode);
+    public CurrencyCalculateSteps verifyBuyCurrencySelected(
+            String currencyCode
+    ) {
+        PlaywrightAssertions
+                .assertThat(
+                        currencyCalculatorPage
+                                .currencyDropdowns
+                                .nth(1)
+                )
+                .containsText(currencyCode);
 
         return this;
     }
 
-    public CurrencyCalculateSteps enterSellAmount(String amount) {
-        String previousBuyAmount = currencyCalculatorPage.buyAmount.inputValue();
+    public CurrencyCalculateSteps enterSellAmount(
+            String amount
+    ) {
+        String previousBuyAmount =
+                currencyCalculatorPage.buyAmount.inputValue();
 
         currencyCalculatorPage.sellAmount.fill(amount);
 
-        assertThat(currencyCalculatorPage.sellAmount)
+        PlaywrightAssertions
+                .assertThat(currencyCalculatorPage.sellAmount)
                 .hasValue(amount);
 
-        assertThat(currencyCalculatorPage.buyAmount)
+        PlaywrightAssertions
+                .assertThat(currencyCalculatorPage.buyAmount)
                 .not()
                 .hasValue(previousBuyAmount);
 
@@ -90,32 +117,40 @@ public class CurrencyCalculateSteps {
             String sellCurrency,
             String buyCurrency
     ) {
-        assertThat(currencyCalculatorPage.exchangeRateElement)
+        PlaywrightAssertions
+                .assertThat(currencyCalculatorPage.exchangeRateElement)
                 .containsText(sellCurrency);
 
-        assertThat(currencyCalculatorPage.exchangeRateElement)
+        PlaywrightAssertions
+                .assertThat(currencyCalculatorPage.exchangeRateElement)
                 .containsText(buyCurrency);
 
         String exchangeRateText =
-                currencyCalculatorPage.exchangeRateElement
+                currencyCalculatorPage
+                        .exchangeRateElement
                         .innerText()
                         .trim();
 
         Pattern pattern = Pattern.compile(
-                "1\\s+" + Pattern.quote(sellCurrency)
+                "1\\s+"
+                        + Pattern.quote(sellCurrency)
                         + "\\s*=\\s*([0-9]+(?:\\.[0-9]+)?)\\s+"
                         + Pattern.quote(buyCurrency)
         );
 
-        Matcher matcher = pattern.matcher(exchangeRateText);
+        Matcher matcher =
+                pattern.matcher(exchangeRateText);
 
-        Assert.assertTrue(
-                matcher.find(),
+        assertThat(
                 "Could not extract exchange rate from UI text: "
-                        + exchangeRateText
+                        + exchangeRateText,
+                matcher.find(),
+                is(true)
         );
 
-        return Double.parseDouble(matcher.group(1));
+        return Double.parseDouble(
+                matcher.group(1)
+        );
     }
 
     public CurrencyCalculateSteps verifyExchangeRateMatchesApi(
@@ -124,25 +159,29 @@ public class CurrencyCalculateSteps {
             String buyCurrency,
             String errorMessage
     ) {
-        double uiRate = getUiExchangeRate(
-                sellCurrency,
-                buyCurrency
-        );
+        double uiRate =
+                getUiExchangeRate(
+                        sellCurrency,
+                        buyCurrency
+                );
 
-        Assert.assertEquals(
+        assertThat(
+                errorMessage,
                 uiRate,
-                apiBuyRate,
-                0.001,
-                errorMessage
+                closeTo(apiBuyRate, 0.001)
         );
 
         return this;
     }
 
-    public double calculateExpectedBuyAmount(double apiBuyRate) {
+    public double calculateExpectedBuyAmount(
+            double apiBuyRate
+    ) {
         double enteredAmount =
                 Double.parseDouble(
-                        currencyCalculatorPage.sellAmount.inputValue()
+                        currencyCalculatorPage
+                                .sellAmount
+                                .inputValue()
                 );
 
         return enteredAmount * apiBuyRate;
@@ -152,19 +191,22 @@ public class CurrencyCalculateSteps {
             double expectedAmount,
             String errorMessage
     ) {
-        assertThat(currencyCalculatorPage.buyAmount)
+        PlaywrightAssertions
+                .assertThat(currencyCalculatorPage.buyAmount)
                 .not()
                 .hasValue("");
 
-        double actualAmount = Double.parseDouble(
-                currencyCalculatorPage.buyAmount.inputValue()
-        );
+        double actualAmount =
+                Double.parseDouble(
+                        currencyCalculatorPage
+                                .buyAmount
+                                .inputValue()
+                );
 
-        Assert.assertEquals(
+        assertThat(
+                errorMessage,
                 actualAmount,
-                expectedAmount,
-                0.01,
-                errorMessage
+                closeTo(expectedAmount, 0.01)
         );
 
         return this;

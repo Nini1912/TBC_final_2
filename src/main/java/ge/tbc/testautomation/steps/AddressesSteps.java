@@ -4,7 +4,6 @@ import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.PlaywrightException;
-import com.microsoft.playwright.assertions.LocatorAssertions;
 import ge.tbc.testautomation.pages.AddressesPage;
 import ge.tbc.testautomation.utils.OpenHoursChecker;
 import org.testng.Assert;
@@ -105,16 +104,15 @@ public class AddressesSteps {
         Locator not247 = addressesPage.descriptions
                 .filter(new Locator.FilterOptions().setHasNotText(FILTER_247));
 
-        assertThat(not247).hasCount(0);          // old, unfiltered items are gone
+        assertThat(not247).hasCount(0);          
         waitForResultsToAppear();
-        assertThat(not247).hasCount(0);          // re-check the final list
+        assertThat(not247).hasCount(0);
         return this;
     }
 
     public AddressesSteps verifyAllResultsCurrentlyOpen() {
         waitForResultsToAppear();
 
-        // the open/closed rule is computed in Java, so re-read until the list is filtered
         long deadline = System.currentTimeMillis() + 15_000;
         List<String> descriptions;
         List<String> closed;

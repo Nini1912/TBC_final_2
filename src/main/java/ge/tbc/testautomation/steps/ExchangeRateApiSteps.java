@@ -3,14 +3,19 @@ package ge.tbc.testautomation.steps;
 import ge.tbc.testautomation.api.clients.ExchangeRateApi;
 import ge.tbc.testautomation.api.models.ExchangeRateResponse;
 import io.restassured.response.Response;
-import org.testng.Assert;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class ExchangeRateApiSteps {
 
     private final ExchangeRateApi exchangeRateApi =
             new ExchangeRateApi();
 
-    public Response getExchangeRate(String iso1, String iso2) {
+    public Response getExchangeRate(
+            String iso1,
+            String iso2
+    ) {
         return exchangeRateApi.getExchangeRate(iso1, iso2);
     }
 
@@ -18,10 +23,10 @@ public class ExchangeRateApiSteps {
             Response response,
             int expectedStatusCode
     ) {
-        Assert.assertEquals(
+        assertThat(
+                "Unexpected HTTP status code",
                 response.statusCode(),
-                expectedStatusCode,
-                "Unexpected HTTP status code"
+                is(expectedStatusCode)
         );
     }
 
@@ -31,9 +36,10 @@ public class ExchangeRateApiSteps {
         ExchangeRateResponse exchangeRateResponse =
                 response.as(ExchangeRateResponse.class);
 
-        Assert.assertNotNull(
+        assertThat(
+                "Exchange rate response should not be null",
                 exchangeRateResponse,
-                "Exchange rate response should not be null"
+                notNullValue()
         );
 
         return exchangeRateResponse;
@@ -44,26 +50,28 @@ public class ExchangeRateApiSteps {
             String expectedIso1,
             String expectedIso2
     ) {
-        Assert.assertEquals(
+        assertThat(
+                "Unexpected source currency",
                 response.getIso1(),
-                expectedIso1,
-                "Unexpected source currency"
+                is(expectedIso1)
         );
 
-        Assert.assertEquals(
+        assertThat(
+                "Unexpected target currency",
                 response.getIso2(),
-                expectedIso2,
-                "Unexpected target currency"
+                is(expectedIso2)
         );
 
-        Assert.assertTrue(
-                response.getBuyRate() > 0,
-                "buyRate should be greater than 0"
+        assertThat(
+                "buyRate should be greater than 0",
+                response.getBuyRate(),
+                greaterThan(0.0)
         );
 
-        Assert.assertTrue(
-                response.getSellRate() > 0,
-                "sellRate should be greater than 0"
+        assertThat(
+                "sellRate should be greater than 0",
+                response.getSellRate(),
+                greaterThan(0.0)
         );
     }
 }

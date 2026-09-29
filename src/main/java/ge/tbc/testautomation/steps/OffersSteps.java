@@ -4,14 +4,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Response;
+import com.microsoft.playwright.assertions.PlaywrightAssertions;
 import ge.tbc.testautomation.pages.OffersPage;
-import org.testng.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static ge.tbc.testautomation.data.Constants.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class OffersSteps {
 
@@ -33,8 +34,18 @@ public class OffersSteps {
         return this;
     }
 
-    public OffersSteps selectShoppingFilterAndCaptureResponse() {
+    public OffersSteps openCategoryFilter() {
+        offersPage.categoryFilter.click();
 
+        PlaywrightAssertions
+                .assertThat(offersPage.shoppingCheckbox)
+                .not()
+                .isChecked();
+
+        return this;
+    }
+
+    public OffersSteps selectShoppingFilterAndCaptureResponse() {
         openCategoryFilter();
 
         shoppingFilterResponse = page.waitForResponse(
@@ -48,15 +59,11 @@ public class OffersSteps {
                         .click()
         );
 
-        Assert.assertTrue(
-                offersPage.shoppingCheckbox.isChecked(),
-                "Shopping filter should be checked after selection"
-        );
+        PlaywrightAssertions
+                .assertThat(offersPage.shoppingCheckbox)
+                .isChecked();
 
-        Assert.assertNotNull(
-                shoppingFilterResponse,
-                "Shopping filter response was not captured"
-        );
+        validateCapturedResponse();
 
         return this;
     }
@@ -64,10 +71,10 @@ public class OffersSteps {
     public OffersSteps verifyRequestEndpoint() {
         validateCapturedResponse();
 
-        Assert.assertEquals(
+        assertThat(
+                "Unexpected offers API endpoint",
                 shoppingFilterResponse.url(),
-                OFFERS_API_URL,
-                "Unexpected offers API endpoint"
+                is(OFFERS_API_URL)
         );
 
         return this;
@@ -76,10 +83,10 @@ public class OffersSteps {
     public OffersSteps verifyRequestMethod() {
         validateCapturedResponse();
 
-        Assert.assertEquals(
+        assertThat(
+                "Unexpected HTTP method",
                 shoppingFilterResponse.request().method(),
-                POST_METHOD,
-                "Unexpected HTTP method"
+                is(POST_METHOD)
         );
 
         return this;
@@ -88,10 +95,10 @@ public class OffersSteps {
     public OffersSteps verifyResponseStatusCode() {
         validateCapturedResponse();
 
-        Assert.assertEquals(
+        assertThat(
+                "Unexpected response status code",
                 shoppingFilterResponse.status(),
-                STATUS_OK,
-                "Unexpected response status code"
+                is(STATUS_OK)
         );
 
         return this;
@@ -103,9 +110,10 @@ public class OffersSteps {
         String requestBody =
                 shoppingFilterResponse.request().postData();
 
-        Assert.assertNotNull(
+        assertThat(
+                "Shopping filter request body should not be null",
                 requestBody,
-                "Shopping filter request body should not be null"
+                notNullValue()
         );
 
         try {
@@ -115,31 +123,28 @@ public class OffersSteps {
             JsonNode filterNode =
                     requestJson.get("filter");
 
-            Assert.assertNotNull(
+            assertThat(
+                    "Request body does not contain 'filter'",
                     filterNode,
-                    "Request body does not contain 'filter'"
+                    notNullValue()
             );
 
-            Assert.assertTrue(
+            assertThat(
+                    "Request 'filter' should be an array",
                     filterNode.isArray(),
-                    "Request 'filter' should be an array"
+                    is(true)
             );
 
-            boolean containsShoppingFilter = false;
+            List<String> filters = new ArrayList<>();
 
             for (JsonNode filter : filterNode) {
-                if (SHOPPING_FILTER_PARAMETER.equals(filter.asText())) {
-                    containsShoppingFilter = true;
-                    break;
-                }
+                filters.add(filter.asText());
             }
 
-            Assert.assertTrue(
-                    containsShoppingFilter,
-                    "Request filter does not contain expected value: "
-                            + SHOPPING_FILTER_PARAMETER
-                            + ". Actual filter: "
-                            + filterNode
+            assertThat(
+                    "Request filter does not contain expected value",
+                    filters,
+                    hasItem(SHOPPING_FILTER_PARAMETER)
             );
 
         } catch (Exception e) {
@@ -156,15 +161,20 @@ public class OffersSteps {
     public OffersSteps verifyDisplayedOffersAgainstResponse() {
         validateCapturedResponse();
 
-        List<String> responseTitles = getResponseOfferTitles();
+        List<String> responseTitles =
+                getResponseOfferTitles();
 
-        Assert.assertFalse(
-                responseTitles.isEmpty(),
-                "The API response contains no offers"
+        assertThat(
+                "The API response contains no offers",
+                responseTitles,
+                is(not(empty()))
         );
 
-        assertThat(offersPage.offerTitles)
-                .hasText(responseTitles.toArray(new String[0]));
+        PlaywrightAssertions
+                .assertThat(offersPage.offerTitles)
+                .hasText(
+                        responseTitles.toArray(new String[0])
+                );
 
         return this;
     }
@@ -181,14 +191,16 @@ public class OffersSteps {
             JsonNode list =
                     responseJson.get("list");
 
-            Assert.assertNotNull(
+            assertThat(
+                    "Response does not contain 'list'",
                     list,
-                    "Response does not contain 'list'"
+                    notNullValue()
             );
 
-            Assert.assertTrue(
+            assertThat(
+                    "Response 'list' should be an array",
                     list.isArray(),
-                    "Response 'list' should be an array"
+                    is(true)
             );
 
             List<String> titles =
@@ -219,21 +231,10 @@ public class OffersSteps {
     }
 
     private void validateCapturedResponse() {
-        Assert.assertNotNull(
+        assertThat(
+                "Shopping filter response was not captured",
                 shoppingFilterResponse,
-                "Shopping filter response was not captured"
+                notNullValue()
         );
-    }
-
-    public OffersSteps openCategoryFilter() {
-        offersPage.categoryFilter.click();
-        offersPage.shoppingCheckbox.waitFor();
-
-        Assert.assertFalse(
-                offersPage.shoppingCheckbox.isChecked(),
-                "Shopping filter should initially be unchecked"
-        );
-
-        return this;
     }
 }
