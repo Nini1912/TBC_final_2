@@ -1,16 +1,16 @@
 package ge.tbc.testautomation.tests;
 
 import ge.tbc.testautomation.components.LanguageSwitcherComponent;
+import ge.tbc.testautomation.components.NavigationComponent;
 import ge.tbc.testautomation.data.LocalizationDataProvider;
 import ge.tbc.testautomation.steps.ConsumerLoanSteps;
-import ge.tbc.testautomation.steps.NavigationSteps;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 public class LoanPageLocalizationTest extends BaseTest {
     LanguageSwitcherComponent languageSwitcher;
-    NavigationSteps navigationSteps;
+    NavigationComponent navigationComponent;
     ConsumerLoanSteps consumerLoanSteps;
 
     private final String locale;
@@ -27,7 +27,7 @@ public class LoanPageLocalizationTest extends BaseTest {
     @BeforeClass
     public void innerSetUp() {
         languageSwitcher = new LanguageSwitcherComponent(page);
-        navigationSteps = new NavigationSteps(page);
+        navigationComponent = new NavigationComponent(page);
         consumerLoanSteps = new ConsumerLoanSteps(page);
     }
 
@@ -39,7 +39,7 @@ public class LoanPageLocalizationTest extends BaseTest {
 
     @Test(priority = 2, description = "KAN-T39/KAN-T40 სამომხმარებლო სესხის გვერდზე გადასვლა")
     public void navigateToConsumerLoanPage() {
-        navigationSteps.navigateToForMe()
+        navigationComponent.navigateToForMe()
                 .navigateToConsumerLoan();
     }
 

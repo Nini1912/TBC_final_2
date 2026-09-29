@@ -1,9 +1,9 @@
 package ge.tbc.testautomation.tests;
 
 import ge.tbc.testautomation.api.models.ExchangeRateResponse;
+import ge.tbc.testautomation.components.NavigationComponent;
 import ge.tbc.testautomation.steps.CurrencyCalculateSteps;
 import ge.tbc.testautomation.steps.ExchangeRateApiSteps;
-import ge.tbc.testautomation.steps.NavigationSteps;
 import io.restassured.response.Response;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -12,7 +12,7 @@ import static ge.tbc.testautomation.data.Constants.*;
 
 public class ExchangeRateApiToUiTest extends BaseTest {
 
-    NavigationSteps navigationSteps;
+    NavigationComponent navigationComponent;
     CurrencyCalculateSteps currencyCalculateSteps;
     ExchangeRateApiSteps exchangeRateApiSteps;
 
@@ -24,7 +24,7 @@ public class ExchangeRateApiToUiTest extends BaseTest {
 
     @BeforeClass
     public void innerSetUp() {
-        navigationSteps = new NavigationSteps(page);
+        navigationComponent = new NavigationComponent(page);
         currencyCalculateSteps = new CurrencyCalculateSteps(page);
         exchangeRateApiSteps = new ExchangeRateApiSteps();
     }
@@ -64,7 +64,7 @@ public class ExchangeRateApiToUiTest extends BaseTest {
 
     @Test(priority = 4, description = "KAN-T45 ვალუტის კურსის გვერდზე გადასვლა")
     public void navigateToCurrencyRatesPage() {
-        navigationSteps
+        navigationComponent
                 .navigateToForMe()
                 .navigateToCurrencyRate()
                 .verifyBreadcrumbContains(CURRENCY_RATES_TEXT);

@@ -1,11 +1,11 @@
 package ge.tbc.testautomation.tests;
 
+import ge.tbc.testautomation.components.NavigationComponent;
 import ge.tbc.testautomation.data.Constants;
 import ge.tbc.testautomation.data.LoanDataProvider;
 import ge.tbc.testautomation.database.models.LoanTestData;
 import ge.tbc.testautomation.steps.LoanCalculatorSteps;
 import ge.tbc.testautomation.steps.LoanSteps;
-import ge.tbc.testautomation.steps.NavigationSteps;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
@@ -14,7 +14,7 @@ public class LoanCalculatorTest extends BaseTest {
 
     private final LoanTestData testData;
 
-    NavigationSteps navigationSteps;
+    NavigationComponent navigationComponent;
     LoanSteps loanSteps;
     LoanCalculatorSteps calculatorSteps;
 
@@ -25,13 +25,13 @@ public class LoanCalculatorTest extends BaseTest {
 
     @BeforeClass
     public void innerSetUp() {
-        navigationSteps = new NavigationSteps(page);
+        navigationComponent = new NavigationComponent(page);
         loanSteps = new LoanSteps(page);
     }
 
     @Test(priority = 1, description = "KAN-T37/KAN-T38 სესხების გვერდზე გადასვლა")
     public void navigateToLoansPage() {
-        navigationSteps.navigateToForMe()
+        navigationComponent.navigateToForMe()
                 .navigateToLoans();
     }
 

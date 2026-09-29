@@ -1,6 +1,6 @@
 package ge.tbc.testautomation.tests;
 
-import ge.tbc.testautomation.steps.NavigationSteps;
+import ge.tbc.testautomation.components.NavigationComponent;
 import ge.tbc.testautomation.steps.OffersSteps;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -8,17 +8,17 @@ import org.testng.annotations.Test;
 public class OffersFilterNetworkTest extends BaseTest {
 
     OffersSteps offersSteps;
-    NavigationSteps navigationSteps;
+    NavigationComponent navigationComponent;
 
     @BeforeClass
     public void innerSetUp() {
         offersSteps = new OffersSteps(page);
-        navigationSteps = new NavigationSteps(page);
+        navigationComponent = new NavigationComponent(page);
     }
 
     @Test(priority = 1, description = "KAN-T48 შეთავაზებების გვერდზე გადასვლა")
     public void navigateToOffersPage() {
-        navigationSteps
+        navigationComponent
                 .navigateToForMe()
                 .navigateToOffers();
 

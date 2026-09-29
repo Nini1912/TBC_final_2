@@ -89,4 +89,33 @@ public class Constants {
 
     public static final String LOYALTY_CREDIT_CARD_MAIN_INFO =
             "ეფექტური საპროცენტო განაკვეთი საშეღავათო პერიოდით 0%-დან";
+
+    public static final String DEPOSITS_TEXT =
+            "ანაბრები";
+
+    public static final String TERM_DEPOSIT_NAME =
+            "ვადიანი ანაბარი";
+
+    public static final String TERM_DEPOSIT_URL_PART =
+            "/ka/deposits/term-deposit";
+
+    public static final String DEPOSIT_CONDITIONS_TEXT = "პირობები";
+
+    public static final String DEPOSIT_INTEREST_RATE_TEXT =
+            "საპროცენტო განაკვეთი";
+
+    public static final String FIXED_INTEREST_RATE_TEXT =
+            "ფიქსირებული";
+
+    public static final String DEPOSITS_URL_PART = "/ka/deposits";
+    public static final String ADDRESSES_TEXT = "მისამართები";
+    public static final String BRANCHES_TAB_TEXT = "ფილიალები";
+    public static final String CITY_PLACEHOLDER_TEXT = "აირჩიე ქალაქი";
+    public static final String LOCATION_PLACEHOLDER_TEXT = "მიუთითე სასურველი ლოკაცია";
+    public static final String VALID_CITY = "თბილისი";
+    public static final String VALID_LOCATION = "პეკინი";
+    public static final String FILTER_247 = "24/7";
+    public static final String FILTER_OPEN = "ღიაა";
+    public static final String TAB_ACTIVE_COLOR = "0, 173, 238";
+    public static final String BRANCHES_TAB_INACTIVE_ERROR_MESSAGE = "ფილიალების ტაბი აქტიური არ არის. ";
 }

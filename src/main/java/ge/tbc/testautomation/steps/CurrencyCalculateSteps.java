@@ -72,10 +72,16 @@ public class CurrencyCalculateSteps {
     }
 
     public CurrencyCalculateSteps enterSellAmount(String amount) {
+        String previousBuyAmount = currencyCalculatorPage.buyAmount.inputValue();
+
         currencyCalculatorPage.sellAmount.fill(amount);
 
         assertThat(currencyCalculatorPage.sellAmount)
                 .hasValue(amount);
+
+        assertThat(currencyCalculatorPage.buyAmount)
+                .not()
+                .hasValue(previousBuyAmount);
 
         return this;
     }

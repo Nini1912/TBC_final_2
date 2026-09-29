@@ -4,6 +4,7 @@ import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
+import com.microsoft.playwright.assertions.PlaywrightAssertions;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
@@ -17,6 +18,7 @@ public class BaseTest {
 
     @BeforeClass
     public void setUp() {
+        PlaywrightAssertions.setDefaultAssertionTimeout(15_000);
         boolean headless = Boolean.parseBoolean(System.getProperty("headless", "true"));
 
         playwright = Playwright.create();
