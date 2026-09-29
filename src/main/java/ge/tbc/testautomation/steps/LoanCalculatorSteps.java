@@ -31,17 +31,19 @@ public class LoanCalculatorSteps {
     }
 
     public LoanCalculatorSteps enterLoanAmount(double amount) {
-        loanCalculatorPage.loanAmountInput.fill(String.valueOf((long) amount));
+        loanCalculatorPage.loanAmountInput.fill(
+                String.valueOf((long) amount)
+        );
         loanCalculatorPage.loanAmountInput.blur();
-        page.waitForTimeout(500);
 
         return this;
     }
 
     public LoanCalculatorSteps selectLoanTerm(int months) {
-        loanCalculatorPage.loanTermInput.fill(String.valueOf(months));
+        loanCalculatorPage.loanTermInput.fill(
+                String.valueOf(months)
+        );
         loanCalculatorPage.loanTermInput.blur();
-        page.waitForTimeout(500);
 
         return this;
     }

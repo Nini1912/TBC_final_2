@@ -10,6 +10,7 @@ import org.testng.Assert;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static ge.tbc.testautomation.data.Constants.*;
 
 public class OffersSteps {
@@ -155,35 +156,17 @@ public class OffersSteps {
     public OffersSteps verifyDisplayedOffersAgainstResponse() {
         validateCapturedResponse();
 
-        List<String> responseTitles =
-                getResponseOfferTitles();
-
-        List<String> displayedTitles =
-                getDisplayedOfferTitles();
+        List<String> responseTitles = getResponseOfferTitles();
 
         Assert.assertFalse(
                 responseTitles.isEmpty(),
                 "The API response contains no offers"
         );
 
-        Assert.assertFalse(
-                displayedTitles.isEmpty(),
-                "No offers are displayed in the UI"
-        );
-
-        Assert.assertEquals(
-                displayedTitles,
-                responseTitles,
-                "Displayed offers do not match offers returned by the API"
-        );
+        assertThat(offersPage.offerTitles)
+                .hasText(responseTitles.toArray(new String[0]));
 
         return this;
-    }
-
-    public List<String> getDisplayedOfferTitles() {
-        return normalizeTitles(
-                offersPage.offerTitles.allTextContents()
-        );
     }
 
     private List<String> getResponseOfferTitles() {
@@ -233,15 +216,6 @@ public class OffersSteps {
                     e
             );
         }
-    }
-
-    private List<String> normalizeTitles(
-            List<String> titles
-    ) {
-        return titles.stream()
-                .map(String::trim)
-                .filter(title -> !title.isBlank())
-                .toList();
     }
 
     private void validateCapturedResponse() {

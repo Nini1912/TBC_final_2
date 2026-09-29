@@ -38,7 +38,7 @@ public class OffersPage {
         shoppingCheckbox = shoppingFilterItem.locator(
                 "input[type='checkbox']"
         );
-        
+
         offerCards = page.locator(
                 ".marketing__cards-list "
                         + ".tbcx-pw-card.tbcx-pw-card--advanced"
