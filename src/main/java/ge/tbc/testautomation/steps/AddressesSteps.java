@@ -80,33 +80,36 @@ public class AddressesSteps {
         return this;
     }
 
-    public AddressesSteps applyFilterAndVerify(String filter) {
-        switch (filter) {
-            case FILTER_247 -> select247Filter().verifyAllResultsAre247();
-            case FILTER_OPEN -> selectOpenFilter().verifyAllResultsCurrentlyOpen();
-            default -> throw new IllegalArgumentException("Unknown address filter: " + filter);
-        }
+    public AddressesSteps waitForResults() {
+        waitForResultsToAppear();
         return this;
     }
 
     private void waitForResultsToAppear() {
         try {
-            assertThat(addressesPage.descriptions.first()).isVisible();
+            assertThat(addressesPage.items.first()).isVisible();
         } catch (AssertionError e) {
-            throw new AssertionError("No results after applying the filter. items="
-                    + addressesPage.items.count()
-                    + ", skeleton=" + addressesPage.skeleton.count()
-                    + ", emptyState=" + addressesPage.emptyStateTitle.count(), e);
+            throw new AssertionError(
+                    "Address results did not appear."
+                            + "\nURL: " + page.url()
+                            + "\nTitle: " + page.title()
+                            + "\nitems=" + addressesPage.items.count()
+                            + "\ndescriptions=" + addressesPage.descriptions.count()
+                            + "\nskeleton=" + addressesPage.skeleton.count()
+                            + "\nemptyState=" + addressesPage.emptyStateTitle.count(),
+                    e
+            );
         }
     }
 
     public AddressesSteps verifyAllResultsAre247() {
+        waitForResultsToAppear();
+
         Locator not247 = addressesPage.descriptions
                 .filter(new Locator.FilterOptions().setHasNotText(FILTER_247));
 
-        assertThat(not247).hasCount(0);          
-        waitForResultsToAppear();
         assertThat(not247).hasCount(0);
+
         return this;
     }
 
