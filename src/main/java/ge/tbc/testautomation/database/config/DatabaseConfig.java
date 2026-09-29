@@ -12,69 +12,120 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
-public class DatabaseConfig {
+public final class DatabaseConfig {
 
-    private static final String JDBC_URL =
-            "jdbc:h2:mem:tbc_automation;DB_CLOSE_DELAY=-1";
+    private static final String DATABASE_PROPERTIES =
+            "database.properties";
 
-    private static final String USERNAME = "sa";
-    private static final String PASSWORD = "";
+    private static final String SQL_SCRIPT =
+            "testdata/loan_test_data.sql";
 
-    private static SqlSessionFactory sqlSessionFactory;
+    private static final String MYBATIS_CONFIG =
+            "mybatis/mybatis-config.xml";
 
-    static {
+    private static final Properties PROPERTIES =
+            loadProperties();
+
+    private static final SqlSessionFactory SQL_SESSION_FACTORY =
+            initialize();
+
+    private DatabaseConfig() {
+    }
+
+    private static Properties loadProperties() {
+        try (InputStream inputStream =
+                     Resources.getResourceAsStream(DATABASE_PROPERTIES)) {
+
+            Properties properties = new Properties();
+            properties.load(inputStream);
+
+            return properties;
+
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    "Failed to load database properties",
+                    e
+            );
+        }
+    }
+
+    private static SqlSessionFactory initialize() {
         initializeDatabase();
-        initializeMyBatis();
+        return initializeMyBatis();
     }
 
     private static void initializeDatabase() {
+        String jdbcUrl =
+                PROPERTIES.getProperty("jdbc.url");
+
+        String username =
+                PROPERTIES.getProperty("jdbc.username");
+
+        String password =
+                PROPERTIES.getProperty("jdbc.password");
 
         try (
                 Connection connection =
-                        DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
+                        DriverManager.getConnection(
+                                jdbcUrl,
+                                username,
+                                password
+                        );
 
-                Statement statement = connection.createStatement();
+                Statement statement =
+                        connection.createStatement();
 
                 InputStream inputStream =
-                        Resources.getResourceAsStream("testdata/loan_test_data.sql");
+                        Resources.getResourceAsStream(SQL_SCRIPT);
 
                 BufferedReader reader =
                         new BufferedReader(
                                 new InputStreamReader(
                                         inputStream,
-                                        StandardCharsets.UTF_8))
+                                        StandardCharsets.UTF_8
+                                )
+                        )
         ) {
 
             String sql = reader.lines()
                     .collect(Collectors.joining("\n"));
 
             for (String command : sql.split(";")) {
-                if (!command.trim().isEmpty()) {
-                    statement.execute(command);
+
+                String trimmedCommand = command.trim();
+
+                if (!trimmedCommand.isEmpty()) {
+                    statement.execute(trimmedCommand);
                 }
             }
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize H2 database", e);
+            throw new IllegalStateException(
+                    "Failed to initialize H2 database",
+                    e
+            );
         }
     }
 
-    private static void initializeMyBatis() {
-
+    private static SqlSessionFactory initializeMyBatis() {
         try (InputStream inputStream =
-                     Resources.getResourceAsStream("mybatis/mybatis-config.xml")) {
+                     Resources.getResourceAsStream(MYBATIS_CONFIG)) {
 
-            sqlSessionFactory =
-                    new SqlSessionFactoryBuilder().build(inputStream);
+            return new SqlSessionFactoryBuilder()
+                    .build(inputStream);
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize MyBatis", e);
+            throw new IllegalStateException(
+                    "Failed to initialize MyBatis",
+                    e
+            );
         }
     }
 
     public static SqlSession getSession() {
-        return sqlSessionFactory.openSession();
+        return SQL_SESSION_FACTORY.openSession();
     }
 }
