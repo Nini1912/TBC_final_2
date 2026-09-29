@@ -19,6 +19,8 @@ public class NavigationComponent {
     private final Locator offersMenuItem;
     private final Locator breadcrumb;
     private final Locator addressesMenuItem;
+    private final Locator tbcCardMenuItem;
+    private final Locator depositsLink;
 
     public NavigationComponent(Page page) {
         forMeMenuItem = page.getByRole(AriaRole.BANNER)
@@ -39,6 +41,18 @@ public class NavigationComponent {
         addressesMenuItem = page.locator(".tbcx-pw-mega-menu--open")
                 .getByText(ADDRESSES_TEXT, new Locator.GetByTextOptions().setExact(true))
                 .first();
+
+        tbcCardMenuItem = page.locator(".tbcx-pw-mega-menu--open")
+                .getByText(TBC_CARD_TEXT, new Locator.GetByTextOptions().setExact(true))
+                .first();
+
+        depositsLink = page.getByRole(AriaRole.BANNER)
+                .getByRole(
+                        AriaRole.LINK,
+                        new Locator.GetByRoleOptions()
+                                .setName(DEPOSITS_TEXT)
+                                .setExact(true)
+                );
     }
 
     private Locator subGroupLink(Page page, String text) {
@@ -90,6 +104,16 @@ public class NavigationComponent {
 
     public NavigationComponent navigateToAddresses() {
         addressesMenuItem.click();
+        return this;
+    }
+
+    public NavigationComponent navigateToTbcCard() {
+        tbcCardMenuItem.click();
+        return this;
+    }
+
+    public NavigationComponent navigateToDeposits() {
+        depositsLink.click();
         return this;
     }
 }

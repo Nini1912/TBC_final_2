@@ -11,6 +11,8 @@
             <class name="ge.tbc.testautomation.tests.CardProductTest"/>
             <class name="ge.tbc.testautomation.tests.AddressesFilterTest"/>
             <class name="ge.tbc.testautomation.tests.BranchSearchByCityTest"/>
+            <class name="ge.tbc.testautomation.tests.TbcCardOrderStartTest"/>
+            <class name="ge.tbc.testautomation.tests.DepositProductTest"/>
         </classes>
     </test>
 
